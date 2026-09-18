@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aozora Reader - Pygame 版 セットアップガイド</title>
+<style>
+:root {
+  --bg: #f4f1ea;
+  --surface: #fffdfa;
+  --ink: #1f1b16;
+  --muted: #6b6257;
+  --accent: #2d6a4f;
+  --accent-weak: #d8f3dc;
+  --line: #d6d0c4;
+  --code-bg: #f0ece3;
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px -12px rgba(0,0,0,0.18);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+  line-height: 1.8;
+}
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+header {
+  text-align: center;
+  padding: 2rem 0 1.5rem;
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 2rem;
+}
+header h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 1.3rem + 1.5vw, 2.4rem);
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+header p {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+section {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+section h2 {
+  margin: 0 0 1rem;
+  font-size: 1.3rem;
+  color: var(--accent);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.4rem;
+}
+section h3 {
+  margin: 1.2rem 0 0.5rem;
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+p { margin: 0.6rem 0; }
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+code {
+  background: var(--code-bg);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+pre code { background: none; padding: 0; }
+ul, ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+.tree {
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  font-family: "SF Mono", "Consolas", monospace;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  white-space: pre;
+  overflow-x: auto;
+}
+.step {
+  background: var(--accent-weak);
+  border-left: 4px solid var(--accent);
+  padding: 0.8rem 1rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1rem 0;
+}
+.step strong {
+  color: var(--accent);
+}
+.note {
+  background: #fff3cd;
+  border-left: 4px solid #e0a800;
+  padding: 0.8rem 1rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1rem 0;
+  font-size: 0.92rem;
+}
+.note strong { color: #856404; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.92rem;
+}
+th, td {
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+}
+th {
+  background: var(--code-bg);
+  font-weight: 600;
+}
+@media print {
+  body { background: #fff; }
+  section { box-shadow: none; border: 1px solid var(--line); }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Aozora Reader - Pygame 版 セットアップガイド</h1>
+  <p>Pyxel 版テキストリーダーを Pygame に移植したプロジェクトの構成と実行方法</p>
+</header>
+
+<section>
+<h2>1. ディレクトリ構成</h2>
+<p>プロジェクトフォルダ（例: <code>aozora-reader</code>）には以下のファイルを配置します。</p>
+<div class="tree">aozora-reader/
+├── main.py                    # エントリーポイント
+├── reader.py                  # App クラス（メインアプリケーション）
+├── input_manager.py           # InputManager（btn/btnp 互換）
+├── sound_manager.py           # SoundManager（効果音管理）
+├── palette.py                 # Pyxel 16色パレット定義
+├── requirements.txt           # Python 依存パッケージ
+│
+├── PixelMplus10-Regular.ttf   # フォント（10px用）
+├── PixelMplus12-Regular.ttf   # フォント（12px用）
+│
+├── aozora_416.txt             # 表示するテキスト（青空文庫など）
+│
+├── beep_talk.wav              # 通常タイピング音
+├── beep_space.wav             # スペースキー高速時の音
+├── beep_fast.wav              # 速タイピング音
+└── beep_faster.wav            # 超高速タイピング音
+</div>
+</section>
+
+<section>
+<h2>2. ファイルの役割</h2>
+<table>
+<tr><th>ファイル</th><th>役割</th></tr>
+<tr><td><code>main.py</code></td><td>エントリーポイント。App インスタンスを生成して run() を呼ぶ</td></tr>
+<tr><td><code>reader.py</code></td><td>App クラス。画面描画、タイピングアニメーション、ページ管理</td></tr>
+<tr><td><code>input_manager.py</code></td><td>Pyxel の btn/btnp に相当する入力管理。キーボード・マウス・ゲームパッド対応</td></tr>
+<tr><td><code>sound_manager.py</code></td><td>WAV/OGG ファイルから効果音を読み込み再。ファイルがない場合は無音で動作</td></tr>
+<tr><td><code>palette.py</code></td><td>Pyxel デフォルト16色パレット（PICO-8）の RGB 定義</td></tr>
+<tr><td><code>requirements.txt</code></td><td>pip インストール用。pygame のみ記載</td></tr>
+</table>
+</section>
+
+<section>
+<h2>3. 実行までの手順</h2>
+
+<h3>Step 1: リポジトリをクローン（または手動でファイルを配置）</h3>
+<pre><code># GitHub からクローンする場合
+git clone https://github.com/YOUR_USERNAME/aozora-reader.git
+cd aozora-reader</code></pre>
+
+<h3>Step 2: 依存パッケージをインストール</h3>
+<pre><code>pip install -r requirements.txt</code></pre>
+<div class="note"><strong>注意:</strong> Linux の場合、pygame ビルドに SDL2 開発ライブラリが必要です。
+<pre style="margin:0.5rem 0 0;"><code>sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev</code></pre>
+</div>
+
+<h3>Step 3: アセットファイルを配置</h3>
+<p>以下のファイルをプロジェクトフォルダに配置してください。</p>
+<ul>
+<li><code>PixelMplus10-Regular.ttf</code> / <code>PixelMplus12-Regular.ttf</code>（フォント）</li>
+<li><code>aozora_416.txt</code>（テキストファイル）</li>
+<li><code>beep_*.wav</code>（効果音、任意）</li>
+</ul>
+<p>フォントがない場合は OS の日本語フォントに自動フォールバックします。</p>
+
+<h3>Step 4: 実行</h3>
+<pre><code>python3 main.py</code></pre>
+
+<h3>操作方法</h3>
+<table>
+<tr><th>キー</th><th>動作</th></tr>
+<tr><td><code>RETURN</code> / <code>↓</code> / マウス左クリック</td><td>次へ進む / ページ送り</td></tr>
+<tr><td><code>↑</code></td><td>前のページに戻る</td></tr>
+<tr><td><code>SPACE</code>（長押し）</td><td>高速タイピング</td></tr>
+<tr><td><code>↓ + Z</code></td><td>さらに高速</td></tr>
+<tr><td><code>↓ + X</code></td><td>超高速</td></tr>
+<tr><td><code>F</code></td><td>フォントサイズ切り替え（10px / 12px）</td></tr>
+<tr><td><code>R</code></td><td>最初から再読み込み</td></tr>
+<tr><td><code>Q</code> / <code>ESC</code></td><td>終了</td></tr>
+</table>
+</section>
+
+<section>
+<h2>4. GitHub リポジトリの作成方法</h2>
+
+<h3>方法A: コマンドラインから作成</h3>
+<pre><code># 1. ローカルで Git リポジトリを初期化
+cd aozora-reader
+git init
+
+# 2. すべてのファイルをステージング
+git add .
+
+# 3. コミット
+git commit -m "Initial commit: Aozora Reader Pygame version"
+
+# 4. GitHub 上で空のリポジトリを作成
+#    https://github.com/new から "aozora-reader" を作成
+
+# 5. リモートを追加してプッシュ
+git remote add origin https://github.com/YOUR_USERNAME/aozora-reader.git
+git branch -M main
+git push -u origin main</code></pre>
+
+<h3>方法B: GitHub CLI を使う</h3>
+<pre><code># gh がインストール済みの場合
+cd aozora-reader
+git init
+git add .
+git commit -m "Initial commit"
+gh repo create aozora-reader --public --source=. --push</code></pre>
+
+<h3>方法C: GitHub ウェブからアップロード</h3>
+<ol>
+<li><a href="https://github.com/new" target="_blank">https://github.com/new</a> を開く</li>
+<li>Repository name に <code>aozora-reader</code> を入力</li>
+<li>Public / Private を選択して「Create repository」</li>
+<li>「uploading an existing file」をクリック</li>
+<li>プロジェクト内の全ファイルをドラッグ＆ドロップしてコミット</li>
+</ol>
+</section>
+
+<section>
+<h2>5. トラブルシューティング</h2>
+
+<h3>pygame のインストールに失敗する</h3>
+<p>SDL2 開発ライブラリが不足しています。OS に応じてインストールしてください。</p>
+<pre><code># Ubuntu / Debian
+sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+
+# Fedora
+sudo dnf install SDL2-devel SDL2_image-devel SDL2_mixer-devel SDL2_ttf-devel
+
+# macOS
+brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf</code></pre>
+
+<h3>日本語が文字化けする / 豆腐になる</h3>
+<p>PixelMplus フォントが見つからない場合、OS のフォントにフォールバックします。
+日本語対応フォントがインストールされているか確認してください。</p>
+<pre><code># Linux の場合
+sudo apt-get install fonts-noto-cjk</code></pre>
+
+<h3>効果音が鳴らない</h3>
+<p><code>beep_*.wav</code> ファイルが存在しないか、pygame.mixer の初期化に失敗しています。
+ファイルを配置するか、無音で動作するため無視して問題ありません。</p>
+
+<h3>「ファイルが見つかりません」と表示される</h3>
+<p><code>aozora_416.txt</code> がプロジェクトフォルダに配置されているか確認してください。</p>
+</section>
+
+<section>
+<h2>6. 次のステップ</h2>
+<p>Pygame 版が動作確認できたら、以下のステップに進めます。</p>
+<ol>
+<li><strong>pygbag で Web 化</strong>: <code>pip install pygbag</code> してブラウザで動作させる</li>
+<li><strong>GitHub Pages にデプロイ</strong>: pygbag ビルド結果を GitHub Pages で公開</li>
+<li><strong>OGG 変換</strong>: WAV を OGG に変換してファイルサイズを削減</li>
+</ol>
+<div class="step"><strong>参考:</strong> pygbag 版のビルド手順は別途 <code>PYGBAG_BUILD_README.md</code> を参照してください</div>
+</section>
+
+</div>
+</body>
+</html>
