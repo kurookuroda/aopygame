@@ -28,7 +28,7 @@ aozora-reader/
 ├── requirements.txt           # Python 依存
 ├── PixelMplus10-Regular.ttf   # フォント（任意）
 ├── PixelMplus12-Regular.ttf   # フォント（任意）
-├── aozora_416.txt             # 表示テキスト
+├── aozora_14.txt             # 表示テキスト
 ├── beep_talk.wav              # 効果音（任意）
 ├── beep_space.wav             # 効果音（任意）
 ├── beep_fast.wav              # 効果音（任意）
